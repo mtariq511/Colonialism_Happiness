@@ -1,0 +1,174 @@
+---
+title: "Lab#3_Maliha Tariq"
+author: "Maliha Tariq"
+date: "10/16/2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("/Users/maliha/Desktop")
+d = read.csv("Happiness_2017.csv")
+d$Colonialism = ifelse(d$Colonialism == 0, 0, 1)
+```
+
+
+Q: Do countries who have been colonized have lower happiness scores?
+
+
+```{r}
+d$Economy <- d$Economy..GDP.per.Capita.
+d$Family <- d$Family
+d$Health <- d$Health..Life.Expectancy.
+d$Freedom <- d$Freedom
+d$Generosity <- d$Generosity
+d$Trust <- d$Trust..Government.Corruption.
+
+```
+
+```{r}
+
+lm1 = lm(as.numeric (Happiness.Score_1) ~ Colonialism  , data = d)
+
+summary(lm1)
+
+```
+
+
+```{r}
+library(ggplot2)
+ggplot(d, aes(d$Colonialism, d$Happiness.Score_1))+
+  geom_smooth(colour = "blue")
+
+```
+
+```{r}
+ggplot(d, aes(d$Colonialism, d$Happiness.Score_1))+
+  geom_jitter(colour = "blue") 
+
+```
+
+```{r}
+lm2 = lm(Economy..GDP.per.Capita. ~ Colonialism, data = d)
+
+summary (lm2)
+
+ggplot(d, aes(d$Colonialism, d$Economy..GDP.per.Capita.))+
+  geom_smooth(colour = "green")
+```
+
+```{r}
+reg1 <- lm (Happiness.Score_1 ~ Economy + Family + Health + Freedom + Generosity + Trust, data = d)
+
+summary(reg1)
+
+  
+```
+```{r}
+reg2 <- lm (Happiness.Score_1 ~ Colonialism + Freedom + Freedom*Colonialism, data = d)
+
+summary(reg2)
+
+```
+```{r}
+reg3 <- lm (Freedom ~ Colonialism, data = d)
+
+summary(reg3)
+
+```
+
+
+
+```{r}
+reg2 <- lm (Happiness.Score_1 ~ Colonialism + Health + Colonialism*Health, data = d)
+
+summary(reg2)
+
+```
+```{r}
+reg2 <- lm (Happiness.Score_1 ~ Colonialism + Family + Colonialism*Family, data = d)
+
+summary(reg2)
+
+```
+
+```{r}
+countries <- geojsonio::geojson_read("/Users/maliha/Downloads/world.geo.json-master/countries.geo.json",what="sp")
+class(countries)
+```
+```{r}
+library(leaflet)
+library(dplyr)
+x$Colonialism = ifelse(x$Colonialism == 0, 0, 1)
+x$name <- x$Name
+n <- x %>% select("name","Colonialism")
+countries@data <- left_join(countries@data,n,by="name",copy=TRUE) 
+countries <- countries[!is.na(countries$Colonialism),]
+```
+
+
+```{r}
+leaflet(countries) %>% addTiles()
+
+# Building Choropleth 
+
+labels <- sprintf("<strong>%s</strong><br/>%s Colonized",countries@data$name,as.character(countries@data$Colonialism)) %>% lapply(htmltools::HTML)
+
+pal <- colorBin("YlOrRd",domain=countries$Colonialism)
+
+colorData <- countries$Colonialism
+pal <- colorFactor(c("black", "red"), colorData)
+
+# Building Map...
+leaflet(countries) %>% 
+
+   addTiles() %>% 
+   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+               opacity = 1.0, fillOpacity = 0.5,
+               fillColor = ~pal(colorData),
+               highlightOptions = highlightOptions(color = "white",
+                                                   weight = 2,
+                                                   bringToFront = TRUE),
+               label=labels,
+               labelOptions=labelOptions(
+     style = list("font-weight" = "normal", padding = "3px 8px"),
+     textsize = "15px",
+     direction = "auto")) %>% 
+   addLegend("bottomright", pal= pal,  values = ~colorData, opacity=1)
+```
+
+
+```{r}
+d$Economy <- d$Economy..GDP.per.Capita.
+d$Family <- d$Family
+d$Health <- d$Health..Life.Expectancy.
+d$Freedom <- d$Freedom
+d$Generosity <- d$Generosity
+d$Trust <- d$Trust..Government.Corruption.
+
+describe(x[,c("Colonialism", "Happiness.Score_1","Economy..GDP.per.Capita.","Family", "Health..Life.Expectancy.","Freedom","Generosity","Trust..Government.Corruption.")])
+```
+```{r}
+describe(x[,c("Happiness.Score_1")])
+```
+the SD means
+```{r}
+cor(d[,c("Colonialism", "Health", "Trust", "economy", "Family", "Freedom", "Generosity")])
+```
+```{r}
+library(corrplot)
+corrplot(cor(d[,c("Colonialism", "Health", "Trust","economy", "Family", "Freedom", "Generosity")]))
+```
+```{r}
+reg2 <- lm (Happiness.Score_1 ~ Colonialism + economy +Health + , data = d)
+
+summary(reg2)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
